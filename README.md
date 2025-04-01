@@ -20,4 +20,25 @@ GoSkills is an interactive e-learning platform designed to provide seamless cour
    ```sh
    git clone https://github.com/vikash1607/GoSkills-Fast-Track-Your-Learning.git
    cd GoSkills-Fast-Track-Your-Learning
+   ```
+2. **Install Dependencies**
+  ```sh
+    npm install
+  ```
+3.""Run the Application""
+  
+  (a)Start the frontend:
+  ```sh
+    npm start
+  ```
+  (b)Start the backend:
+  ```sh
+    cd server  
+    npm start
+```
+4. **Contributing**
+
+Feel free to fork this repository, raise issues, and submit pull requests.
+
+
 
