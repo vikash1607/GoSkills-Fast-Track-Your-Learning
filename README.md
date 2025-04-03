@@ -25,7 +25,7 @@ GoSkills is an interactive e-learning platform designed to provide seamless cour
   ```sh
     npm install
   ```
-3.""Run the Application""
+3. **Run the Application**
   
   (a)Start the frontend:
   ```sh
