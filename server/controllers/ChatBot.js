@@ -8,8 +8,7 @@ exports.chatBotController = async (req, res) => {
   console.log("User Query:", query);
 
   try {
-    const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    const response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         contents: [{ role: "user", parts: [{ text: query }] }],
       }
@@ -30,6 +29,3 @@ exports.chatBotController = async (req, res) => {
     });
   }
 };
-
-
-

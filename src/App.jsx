@@ -28,8 +28,8 @@ import ForgotPassword from "./pages/ForgotPassword"
 // Pages
 import Home from "./pages/Home"
 import Login from "./pages/Login"
-import ChatBot from "./pages/ChatBot"
 import Signup from "./pages/Signup"
+import ChatBot from "./pages/ChatBot"
 import UpdatePassword from "./pages/UpdatePassword"
 import VerifyEmail from "./pages/VerifyEmail"
 import ViewCourse from "./pages/ViewCourse"
@@ -55,10 +55,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/chatBot" element={<ChatBot />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="courses/:courseId" element={<CourseDetails />} />
         <Route path="catalog/:catalogName" element={<Catalog />} />
+
         {/* Open Route - for Only Non Logged in User */}
         <Route
           path="login"
@@ -108,6 +108,11 @@ function App() {
             </PrivateRoute>
           }
         >
+        <Route path="/chatbot"
+          element={
+            <PrivateRoute>
+              <ChatBot />
+            </PrivateRoute>} />
           {/* Route for all users */}
           <Route path="dashboard/my-profile" element={<MyProfile />} />
           <Route path="dashboard/Settings" element={<Settings />} />

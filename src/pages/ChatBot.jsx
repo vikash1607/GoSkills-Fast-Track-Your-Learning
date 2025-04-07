@@ -3,92 +3,125 @@ import { Send, Loader2 } from "lucide-react";
 import axios from "axios";
 
 const ChatBot = () => {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-  const formatResponse = (text) => {
-    const lines = text.split("\n").map((line, index) => {
-      if (line.startsWith("**") && line.endsWith("**")) {
-        return <h3 key={index} className="font-bold text-[#FCB045]">{line.replace(/\*\*/g, "")}</h3>;
-      }
-      if (line.startsWith("* **")) {
-        return <li key={index} className="list-disc ml-4 font-semibold text-richblack-5">{line.replace(/\* \*\*/g, "").replace(/\*\*:/, ":")}</li>;
-      }
-      if (line.startsWith("* ")) {
-        return <li key={index} className="list-disc ml-4 text-richblack-300">{line.replace("* ", "")}</li>;
-      }
-      return <p key={index} className="text-richblack-5">{line}</p>;
-    });
-    return <div className="space-y-2">{lines}</div>;
-  };
+    const formatResponse = (text) => {
+        if (!text) return null;
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+        const lines = text.split("\n").map((line, index) => {
+            if (line.trim() === "") return null;
 
-    setMessages((prevMessages) => [...prevMessages, { sender: "user", text: input }]);
-    setIsLoading(true);
-    setInput("");
+            if (line.startsWith("**") && line.endsWith("**")) {
+                return (
+                    <h3 key={index} className="font-bold text-[#FCB045]">
+                        {line.replace(/\*\*/g, "")}
+                    </h3>
+                );
+            }
 
-    try {
-      const { data } = await axios.post("http://localhost:4000/api/v1/chatbot", { query: input });
-      setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: data.reply }]);
-    } catch (error) {
-      console.error("Error:", error);
-    }
+            if (line.startsWith("* ")) {
+                return (
+                    <li key={index} className="list-disc ml-6 text-richblack-100">
+                        {line.replace("* ", "")}
+                    </li>
+                );
+            }
 
-    setIsLoading(false);
-  };
+            return (
+                <p key={index} className="text-richblack-5">
+                    {line}
+                </p>
+            );
+        });
 
-  return (
-    <div className="flex flex-col h-screen w-full bg-richblack-700 shadow-xl border border-richblack-600">
-      {/* <div className="bg-gradient-to-r from-[#cab6ed]  p-5 text-center text-2xl font-bold text-white border-b border-richblack-600">
-        goSkills Chatbot
-      </div> */}
+        return <div className="space-y-1">{lines}</div>;
+    };
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-richblack-700">
-      {messages.map((msg, index) => (
-  <div
-    key={index}
-    className={`p-4 max-w-2xl rounded-xl shadow-md text-sm md:text-base border border-gray-300 ${
-      msg.sender === "user"
-        ? "bg-gray-100 text-richblack-400 ml-auto text-right"
-        : "bg-gray-100 text-richblack-400 mr-auto text-left"
-    }`}
-  >
-    {formatResponse(msg.text)}
-  </div>
-))}
+    const sendMessage = async () => {
+        const trimmedInput = input.trim();
 
+        if (!trimmedInput) {
+            const defaultMessage =
+                "👋 Hi there! Ask me anything related to StudyNotion, your courses, or tech in general.";
+            setMessages((prev) => [...prev, { sender: "bot", text: defaultMessage }]);
+            return;
+        }
 
-        {isLoading && (
-          <div className="flex items-center space-x-2 text-richblack-300 animate-pulse">
-            <Loader2 className="animate-spin" size={24} />
-            <span>Thinking...</span>
-          </div>
-        )}
-      </div>
+        setMessages((prev) => [...prev, { sender: "user", text: trimmedInput }]);
+        setIsLoading(true);
+        setInput("");
 
-      <div className="flex items-center gap-3 p-5  border-t border-richblack-600 bg-richblack-800">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-          className="flex-1 p-3 border border-richblack-500 rounded-lg outline-none focus:ring-2 focus:ring-[#FCB045] bg-richblack-700 text-richblack-5"
-          disabled={isLoading}
-        />
-        <button
-          onClick={sendMessage}
-          className="bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCB045] text-white p-3  rounded-lg hover:opacity-90 transition-all flex items-center justify-center shadow-lg disabled:opacity-50"
-          disabled={isLoading}
-        >
-          {isLoading ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
-        </button>
-      </div>
-    </div>
-  );
+        try {
+            const { data } = await axios.post(
+                `${process.env.REACT_APP_BASE_URL}/chatbot`,
+                { query: trimmedInput }
+            );
+            setMessages((prev) => [...prev, { sender: "bot", text: data.reply }]);
+        } catch (error) {
+            console.error("API Error:", error);
+            setMessages((prev) => [
+                ...prev,
+                { sender: "bot", text: "❌ Oops! Something went wrong. Try again later." },
+            ]);
+        }
+
+        setIsLoading(false);
+    };
+
+    return (
+        <div className="flex flex-col h-[90vh] max-h-[90vh] w-full bg-richblack-700 shadow-xl border border-richblack-600 overflow-hidden">
+            {/* Chat Area */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                {messages.length === 0 && (
+                    <div className="text-center mt-20 text-xl md:text-2xl font-semibold text-[#FCB045] animate-pulse">
+                        👋 Start chatting with the bot ✨
+                    </div>
+                )}
+
+                {messages.map((msg, index) => (
+                    <div
+                        key={index}
+                        className={`p-4 max-w-xl rounded-xl shadow-sm border text-sm md:text-base whitespace-pre-wrap ${
+                            msg.sender === "user"
+                                ? " border-richblack-400 bg-richblack-700 text-yellow-900 ml-auto text-right"
+                                : "bg-gray-100 text-richblack-400 mr-auto text-left"
+                        }`}
+                    >
+                        {formatResponse(msg.text)}
+                    </div>
+                ))}
+
+                {isLoading && (
+                    <div className="flex items-center space-x-2 text-richblack-300 animate-pulse">
+                        <Loader2 className="animate-spin" size={24} />
+                        <span>Thinking...</span>
+                    </div>
+                )}
+            </div>
+
+            {/* Input Area (Sticky Bottom) */}
+            <div className="sticky bottom-0 flex items-center gap-3 p-5 border-t border-richblack-600 bg-richblack-800">
+                <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type your message..."
+                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                    className="flex-1 p-3 border border-richblack-500 rounded-lg outline-none focus:ring-2 focus:ring-[#FCB045] bg-richblack-700 text-white"
+                    disabled={isLoading}
+                />
+                <button
+                    onClick={sendMessage}
+                    className="bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCB045] text-white p-3 rounded-lg hover:opacity-90 transition-all flex items-center justify-center shadow-lg disabled:opacity-50"
+                    disabled={isLoading}
+                >
+                    {isLoading ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+                </button>
+            </div>
+        </div>
+    );
 };
 
 export default ChatBot;
